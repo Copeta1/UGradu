@@ -1,31 +1,18 @@
-import { StyleSheet } from 'react-native';
+import { useAuth } from "@/hooks/useAuth";
+import { Text, TouchableOpacity, View } from "react-native";
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+export default function HomeScreen() {
+  const { logout } = useAuth();
 
-export default function TabOneScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+    <View className="flex-1 items-center justify-center bg-white">
+      <Text className="text-2xl font-bold text-orange-500 mb-6">UGradu</Text>
+      <TouchableOpacity
+        className="bg-orange-500 rounded-xl px-6 py-3"
+        onPress={logout}
+      >
+        <Text className="text-white font-bold">Odjavi se</Text>
+      </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
