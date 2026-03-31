@@ -1,18 +1,183 @@
+import { CATEGORIES } from "@/constants/categories";
 import { useAuth } from "@/hooks/useAuth";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Event } from "@/types";
+import { ChevronDown, Heart } from "lucide-react-native";
+import { useState } from "react";
+import {
+  FlatList,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+const FAKE_EVENTS: Event[] = [
+  {
+    id: "1",
+    title: "Gibonni Live",
+    description: "Nezaboravan koncert",
+    city: "Zagreb",
+    location: { lat: 45.815, lng: 15.982, address: "Dom sportova" },
+    date: new Date(),
+    imageUrl: "",
+    category: "koncerti",
+    price: "25 €",
+    createdBy: "admin",
+    createdAt: new Date(),
+    isFeatured: true,
+  },
+  {
+    id: "2",
+    title: "Street Food Festival",
+    description: "Najbolja hrana u gradu",
+    city: "Zagreb",
+    location: { lat: 45.813, lng: 15.977, address: "Zrinjevac" },
+    date: new Date(),
+    imageUrl: "",
+    category: "festivali",
+    price: "Besplatno",
+    createdBy: "admin",
+    createdAt: new Date(),
+    isFeatured: false,
+  },
+  {
+    id: "3",
+    title: "Pub Kviz — The Pub",
+    description: "Tjedni pub kviz",
+    city: "Zagreb",
+    location: { lat: 45.812, lng: 15.981, address: "The Pub" },
+    date: new Date(),
+    imageUrl: "",
+    category: "pub-kvizovi",
+    price: "Besplatno",
+    createdBy: "admin",
+    createdAt: new Date(),
+    isFeatured: false,
+  },
+  {
+    id: "4",
+    title: "Techno Night — Shelter",
+    description: "Najbolji techno u gradu",
+    city: "Zagreb",
+    location: { lat: 45.811, lng: 15.979, address: "Shelter Club" },
+    date: new Date(),
+    imageUrl: "",
+    category: "klubovi",
+    price: "10 €",
+    createdBy: "admin",
+    createdAt: new Date(),
+    isFeatured: false,
+  },
+];
 
 export default function HomeScreen() {
-  const { logout } = useAuth();
+  const { userData } = useAuth();
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("sve");
+
+  const filteredEvents = FAKE_EVENTS.filter((event) => {
+    const matchesCategory =
+      selectedCategory === "sve" || event.category === selectedCategory;
+    const matchesSearch = event.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const featuredEvent = FAKE_EVENTS.find((e) => e.isFeatured);
 
   return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-2xl font-bold text-orange-500 mb-6">UGradu</Text>
-      <TouchableOpacity
-        className="bg-orange-500 rounded-xl px-6 py-3"
-        onPress={logout}
-      >
-        <Text className="text-white font-bold">Odjavi se</Text>
-      </TouchableOpacity>
+    <View className="flex-1 bg-white">
+      <View className="px-4 pt-12 pb-4">
+        <View className="flex-row justify-between items-center mb-4 pt-6">
+          <TouchableOpacity className="flex-row items-center gap-1">
+            <Text className="text-lg font-bold text-gray-900">Zagreb</Text>
+            <ChevronDown size={18} color="#f97316" />
+          </TouchableOpacity>
+          <Text>Dobro jutro, {userData?.firstName}!</Text>
+        </View>
+
+        <TextInput
+          className="bg-gray-100 rounded-xl px-4 py-3 text-gray-900 text-base mb-4"
+          placeholder="Pretraži evente..."
+          placeholderTextColor="#9ca3af"
+          value={search}
+          onChangeText={setSearch}
+        />
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {CATEGORIES.map((cat) => (
+            <TouchableOpacity
+              key={cat.id}
+              onPress={() => setSelectedCategory(cat.id)}
+              className={`mr-2 px-4 py-2 rounded-full ${
+                selectedCategory === cat.id ? "bg-orange-500" : "bg-gray-100"
+              }`}
+            >
+              <Text
+                className={`text-sm font-medium ${
+                  selectedCategory === cat.id ? "text-white" : "text-gray-600"
+                }`}
+              >
+                {cat.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      <FlatList
+        data={filteredEvents}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
+        ListHeaderComponent={
+          <>
+            {featuredEvent && (
+              <View className="mb-4">
+                <Text className="text-base font-bold text-gray-900 mb-2">
+                  Istaknuto
+                </Text>
+                <View className="bg-gray-900 rounded-2xl p-4 h-40 justify-end">
+                  <View className="bg-orange-500 self-start px-2 py-1 rounded mb-1">
+                    <Text className="text-white text-xs font-bold">
+                      VEČERAS
+                    </Text>
+                  </View>
+                  <Text className="text-white font-bold text-lg">
+                    {featuredEvent.title}
+                  </Text>
+                  <Text className="text-gray-400 text-sm">
+                    {featuredEvent.location.address}
+                  </Text>
+                </View>
+              </View>
+            )}
+            <Text className="text-base font-bold text-gray-900 mb-2">
+              Svi eventi
+            </Text>
+          </>
+        }
+        renderItem={({ item }) => (
+          <TouchableOpacity className="flex-row bg-white border border-gray-100 rounded-2xl p-3 mb-3 items-center">
+            <View className="w-16 h-16 bg-orange-100 rounded-xl mr-3" />
+            <View className="flex-1">
+              <Text className="font-bold text-gray-900 text-sm">
+                {item.title}
+              </Text>
+              <Text className="text-gray-500 text-xs mt-1">
+                {item.location.address}
+              </Text>
+              <View className="flex-row justify-between items-center mt-2">
+                <Text className="text-orange-500 font-bold text-sm">
+                  {item.price}
+                </Text>
+                <Heart size={18} color="#d1d5db" />
+              </View>
+            </View>
+          </TouchableOpacity>
+        )}
+      />
     </View>
   );
 }

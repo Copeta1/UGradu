@@ -6,16 +6,26 @@ import {
   signOut,
   User,
 } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
+
+      if (firebaseUser) {
+        const docSnap = await getDoc(doc(db, "users", firebaseUser.uid));
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
+        }
+      } else {
+        setUserData(null);
+      }
       setLoading(false);
     });
 
@@ -51,5 +61,5 @@ export function useAuth() {
     await signOut(auth);
   };
 
-  return { login, register, logout, user, loading };
+  return { login, register, logout, user, loading, userData };
 }
