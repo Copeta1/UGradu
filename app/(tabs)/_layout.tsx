@@ -2,8 +2,6 @@ import { Tabs } from "expo-router";
 import { Heart, Home, Map, User } from "lucide-react-native";
 import React from "react";
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-
 export default function TabLayout() {
   return (
     <Tabs
