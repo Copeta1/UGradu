@@ -1,4 +1,5 @@
 import { FAKE_EVENTS } from "@/constants/fakeEvents";
+import { useCityStore } from "@/store/cityStore";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, Calendar, Heart, MapPin } from "lucide-react-native";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -6,6 +7,8 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const { favorites, toggleFavorite } = useCityStore();
+  const isFavorite = favorites.includes(id as string);
 
   const event = FAKE_EVENTS.find((e) => e.id === id);
 
@@ -27,8 +30,15 @@ export default function EventDetailScreen() {
           >
             <ArrowLeft size={22} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity className="bg-black/40 p-2 rounded-full">
-            <Heart size={22} color="white" />
+          <TouchableOpacity
+            onPress={() => toggleFavorite(id as string)}
+            className="bg-black/40 p-2 rounded-full"
+          >
+            <Heart
+              size={22}
+              color={isFavorite ? "#f97316" : "white"}
+              fill={isFavorite ? "#f97316" : "transparent"}
+            />
           </TouchableOpacity>
         </View>
         <View className="p-4">

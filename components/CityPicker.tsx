@@ -1,6 +1,6 @@
 import { CITIES } from "@/constants/cities";
 import { useCityStore } from "@/store/cityStore";
-import { X } from "lucide-react-native";
+import { Check, X } from "lucide-react-native";
 import { FlatList, Modal, Text, TouchableOpacity, View } from "react-native";
 
 interface Props {
@@ -24,7 +24,7 @@ export default function CityPicker({ onClose, visible }: Props) {
             <Text className="text-lg font-bold text-gray-900">
               Odaberi grad
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onClose}>
               <X size={24} color="#9ca3af" />
             </TouchableOpacity>
           </View>
@@ -46,9 +46,7 @@ export default function CityPicker({ onClose, visible }: Props) {
                 >
                   {item}
                 </Text>
-                {selectedCity === item && (
-                  <Text className="text-orange-500">✓</Text>
-                )}
+                {selectedCity === item && <Check size={18} color="#f97316" />}
               </TouchableOpacity>
             )}
           />

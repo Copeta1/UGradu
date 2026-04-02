@@ -20,7 +20,7 @@ export default function HomeScreen() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("sve");
   const [cityPickerVisible, setCityPickerVisible] = useState(false);
-  const { selectedCity } = useCityStore();
+  const { selectedCity, favorites, toggleFavorite } = useCityStore();
   const router = useRouter();
 
   const filteredEvents = FAKE_EVENTS.filter((event) => {
@@ -127,7 +127,20 @@ export default function HomeScreen() {
                 <Text className="text-orange-500 font-bold text-sm">
                   {item.price}
                 </Text>
-                <Heart size={18} color="#d1d5db" />
+                <TouchableOpacity
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(item.id);
+                  }}
+                >
+                  <Heart
+                    size={18}
+                    color={favorites.includes(item.id) ? "#f97316" : "#d1d5db"}
+                    fill={
+                      favorites.includes(item.id) ? "#f97316" : "transparent"
+                    }
+                  />
+                </TouchableOpacity>
               </View>
             </View>
           </TouchableOpacity>
