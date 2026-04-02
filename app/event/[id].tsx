@@ -1,0 +1,73 @@
+import { FAKE_EVENTS } from "@/constants/fakeEvents";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { ArrowLeft, Calendar, Heart, MapPin } from "lucide-react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+
+export default function EventDetailScreen() {
+  const { id } = useLocalSearchParams();
+  const router = useRouter();
+
+  const event = FAKE_EVENTS.find((e) => e.id === id);
+
+  if (!event) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500">Event nije pronađen.</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View className="flex-1 bg-white">
+      <View className="h-64 bg-gray-900 justify-end">
+        <View className="absolute top-12 left-4 right-4 flex-row justify-between">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="bg-black/40 p-2 rounded-full"
+          >
+            <ArrowLeft size={22} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity className="bg-black/40 p-2 rounded-full">
+            <Heart size={22} color="white" />
+          </TouchableOpacity>
+        </View>
+        <View className="p-4">
+          <View className="bg-orange-500 self-start px-2 py-1 rounded mb-2">
+            <Text className="text-white text-xs font-bold">
+              {event.category.toUpperCase()}
+            </Text>
+          </View>
+          <Text className="text-white text-2xl font-bold">{event.title}</Text>
+        </View>
+      </View>
+
+      <ScrollView className="flex-1 px-4 pt-4">
+        <View className="flex-row items-center gap-2 mb-3">
+          <MapPin size={16} color="#f97316" />
+          <Text className="text-gray-600">{event.location.address}</Text>
+        </View>
+
+        <View className="flex-row items-center gap-2 mb-6">
+          <Calendar size={16} color="#f97316" />
+          <Text className="text-gray-600">
+            {new Date(event.date).toLocaleDateString("hr-HR", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+            })}
+          </Text>
+        </View>
+
+        <Text className="text-base font-bold text-gray-900 mb-2">O eventu</Text>
+        <Text className="text-gray-600 leading-6">{event.description}</Text>
+
+        <View className="mt-6 bg-orange-50 rounded-2xl p-4 flex-row justify-between items-center">
+          <Text className="text-gray-600">Cijena ulaznice</Text>
+          <Text className="text-orange-500 font-bold text-lg">
+            {event.price}
+          </Text>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}

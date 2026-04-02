@@ -1,8 +1,9 @@
 import CityPicker from "@/components/CityPicker";
 import { CATEGORIES } from "@/constants/categories";
+import { FAKE_EVENTS } from "@/constants/fakeEvents";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityStore } from "@/store/cityStore";
-import { Event } from "@/types";
+import { useRouter } from "expo-router";
 import { ChevronDown, Heart } from "lucide-react-native";
 import { useState } from "react";
 import {
@@ -14,71 +15,13 @@ import {
   View,
 } from "react-native";
 
-const FAKE_EVENTS: Event[] = [
-  {
-    id: "1",
-    title: "Gibonni Live",
-    description: "Nezaboravan koncert",
-    city: "Zagreb",
-    location: { lat: 45.815, lng: 15.982, address: "Dom sportova" },
-    date: new Date(),
-    imageUrl: "",
-    category: "koncerti",
-    price: "25 €",
-    createdBy: "admin",
-    createdAt: new Date(),
-    isFeatured: true,
-  },
-  {
-    id: "2",
-    title: "Street Food Festival",
-    description: "Najbolja hrana u gradu",
-    city: "Zagreb",
-    location: { lat: 45.813, lng: 15.977, address: "Zrinjevac" },
-    date: new Date(),
-    imageUrl: "",
-    category: "festivali",
-    price: "Besplatno",
-    createdBy: "admin",
-    createdAt: new Date(),
-    isFeatured: false,
-  },
-  {
-    id: "3",
-    title: "Pub Kviz — The Pub",
-    description: "Tjedni pub kviz",
-    city: "Zagreb",
-    location: { lat: 45.812, lng: 15.981, address: "The Pub" },
-    date: new Date(),
-    imageUrl: "",
-    category: "pub-kvizovi",
-    price: "Besplatno",
-    createdBy: "admin",
-    createdAt: new Date(),
-    isFeatured: false,
-  },
-  {
-    id: "4",
-    title: "Techno Night — Shelter",
-    description: "Najbolji techno u gradu",
-    city: "Zagreb",
-    location: { lat: 45.811, lng: 15.979, address: "Shelter Club" },
-    date: new Date(),
-    imageUrl: "",
-    category: "klubovi",
-    price: "10 €",
-    createdBy: "admin",
-    createdAt: new Date(),
-    isFeatured: false,
-  },
-];
-
 export default function HomeScreen() {
   const { userData } = useAuth();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("sve");
   const [cityPickerVisible, setCityPickerVisible] = useState(false);
   const { selectedCity } = useCityStore();
+  const router = useRouter();
 
   const filteredEvents = FAKE_EVENTS.filter((event) => {
     const matchesCategory =
@@ -168,7 +111,10 @@ export default function HomeScreen() {
           </>
         }
         renderItem={({ item }) => (
-          <TouchableOpacity className="flex-row bg-white border border-gray-100 rounded-2xl p-3 mb-3 items-center">
+          <TouchableOpacity
+            onPress={() => router.push(`/event/${item.id}` as any)}
+            className="flex-row bg-white border border-gray-100 rounded-2xl p-3 mb-3 items-center"
+          >
             <View className="w-16 h-16 bg-orange-100 rounded-xl mr-3" />
             <View className="flex-1">
               <Text className="font-bold text-gray-900 text-sm">
