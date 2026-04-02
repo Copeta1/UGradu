@@ -1,5 +1,7 @@
+import CityPicker from "@/components/CityPicker";
 import { CATEGORIES } from "@/constants/categories";
 import { useAuth } from "@/hooks/useAuth";
+import { useCityStore } from "@/store/cityStore";
 import { Event } from "@/types";
 import { ChevronDown, Heart } from "lucide-react-native";
 import { useState } from "react";
@@ -75,6 +77,8 @@ export default function HomeScreen() {
   const { userData } = useAuth();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("sve");
+  const [cityPickerVisible, setCityPickerVisible] = useState(false);
+  const { selectedCity } = useCityStore();
 
   const filteredEvents = FAKE_EVENTS.filter((event) => {
     const matchesCategory =
@@ -91,8 +95,13 @@ export default function HomeScreen() {
     <View className="flex-1 bg-white">
       <View className="px-4 pt-12 pb-4">
         <View className="flex-row justify-between items-center mb-4 pt-6">
-          <TouchableOpacity className="flex-row items-center gap-1">
-            <Text className="text-lg font-bold text-gray-900">Zagreb</Text>
+          <TouchableOpacity
+            className="flex-row items-center gap-1"
+            onPress={() => setCityPickerVisible(true)}
+          >
+            <Text className="text-lg font-bold text-gray-900">
+              {selectedCity}
+            </Text>
             <ChevronDown size={18} color="#f97316" />
           </TouchableOpacity>
           <Text>Dobro jutro, {userData?.firstName}!</Text>
@@ -177,6 +186,10 @@ export default function HomeScreen() {
             </View>
           </TouchableOpacity>
         )}
+      />
+      <CityPicker
+        visible={cityPickerVisible}
+        onClose={() => setCityPickerVisible(false)}
       />
     </View>
   );
