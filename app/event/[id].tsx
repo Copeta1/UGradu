@@ -1,16 +1,52 @@
-import { FAKE_EVENTS } from "@/constants/fakeEvents";
+import { db } from "@/services/firebase";
 import { useCityStore } from "@/store/cityStore";
+import { Event } from "@/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { doc, getDoc } from "firebase/firestore";
 import { ArrowLeft, Calendar, Heart, MapPin } from "lucide-react-native";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { favorites, toggleFavorite } = useCityStore();
+  const [event, setEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const isFavorite = favorites.includes(id as string);
 
-  const event = FAKE_EVENTS.find((e) => e.id === id);
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const docRef = doc(db, "events", id as string);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setEvent({ id: docSnap.id, ...docSnap.data() } as Event);
+        }
+      } catch (error) {
+        console.error("Greška:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvent();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#f97316" />
+      </View>
+    );
+  }
 
   if (!event) {
     return (
@@ -60,10 +96,12 @@ export default function EventDetailScreen() {
         <View className="flex-row items-center gap-2 mb-6">
           <Calendar size={16} color="#f97316" />
           <Text className="text-gray-600">
-            {new Date(event.date).toLocaleDateString("hr-HR", {
+            {new Date(event.date.seconds * 1000).toLocaleDateString("hr-HR", {
               weekday: "long",
               day: "numeric",
               month: "long",
+              hour: "2-digit",
+              minute: "2-digit",
             })}
           </Text>
         </View>
@@ -71,7 +109,7 @@ export default function EventDetailScreen() {
         <Text className="text-base font-bold text-gray-900 mb-2">O eventu</Text>
         <Text className="text-gray-600 leading-6">{event.description}</Text>
 
-        <View className="mt-6 bg-orange-50 rounded-2xl p-4 flex-row justify-between items-center">
+        <View className="mt-6 bg-orange-50 rounded-2xl p-4 flex-row justify-between items-center mb-8">
           <Text className="text-gray-600">Cijena ulaznice</Text>
           <Text className="text-orange-500 font-bold text-lg">
             {event.price}

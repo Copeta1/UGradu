@@ -1,8 +1,10 @@
 import { CATEGORIES } from "@/constants/categories";
 import { CITIES } from "@/constants/cities";
 import { useAuth } from "@/hooks/useAuth";
+import { db } from "@/services/firebase";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { ChevronDown, X } from "lucide-react-native";
 import { useState } from "react";
 import {
@@ -49,12 +51,44 @@ export default function CreateEventScreen() {
     );
   }
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!title || !description || !address || !price) {
       Alert.alert("Greška", "Molimo ispunite sva polja.");
       return;
     }
-    Alert.alert("Uspjeh", "Event je kreiran!");
+    try {
+      const eventDate = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        time.getHours(),
+        time.getMinutes(),
+      );
+
+      await addDoc(collection(db, "events"), {
+        title,
+        description,
+        city,
+        location: {
+          lat: 0,
+          lng: 0,
+          address,
+        },
+        category,
+        price,
+        date: Timestamp.fromDate(eventDate),
+        imageUrl: "",
+        createdBy: userData?.uid ?? "",
+        createdAt: Timestamp.now(),
+        isFeatured: false,
+      });
+
+      Alert.alert("Uspjeh!", "Event je uspješno kreiran!", [
+        { text: "OK", onPress: () => router.replace("/(tabs)") },
+      ]);
+    } catch (error) {
+      Alert.alert("Greška", "Nije moguće kreirati event. Pokušajte ponovno.");
+    }
   };
 
   return (
@@ -195,16 +229,23 @@ export default function CreateEventScreen() {
           <ChevronDown size={18} color="#9ca3af" />
         </TouchableOpacity>
         {showDatePicker && (
-          <DateTimePicker
-            value={date}
-            mode="date"
-            display="spinner"
-            minimumDate={new Date()}
-            onChange={(event, selectedDate) => {
-              setShowDatePicker(false);
-              if (selectedDate) setDate(selectedDate);
-            }}
-          />
+          <View>
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="spinner"
+              minimumDate={new Date()}
+              onChange={(event, selectedDate) => {
+                if (selectedDate) setDate(selectedDate);
+              }}
+            />
+            <TouchableOpacity
+              onPress={() => setShowDatePicker(false)}
+              className="bg-orange-500 rounded-xl py-3 items-center mb-4"
+            >
+              <Text className="text-white font-bold">Potvrdi datum</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         {/* Vrijeme */}
@@ -222,15 +263,22 @@ export default function CreateEventScreen() {
           <ChevronDown size={18} color="#9ca3af" />
         </TouchableOpacity>
         {showTimePicker && (
-          <DateTimePicker
-            value={time}
-            mode="time"
-            display="spinner"
-            onChange={(event, selectedTime) => {
-              setShowTimePicker(false);
-              if (selectedTime) setTime(selectedTime);
-            }}
-          />
+          <View>
+            <DateTimePicker
+              value={time}
+              mode="time"
+              display="spinner"
+              onChange={(event, selectedTime) => {
+                if (selectedTime) setTime(selectedTime);
+              }}
+            />
+            <TouchableOpacity
+              onPress={() => setShowTimePicker(false)}
+              className="bg-orange-500 rounded-xl py-3 items-center mb-4"
+            >
+              <Text className="text-white font-bold">Potvrdi vrijeme</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         {/* Cijena */}

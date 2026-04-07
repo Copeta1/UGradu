@@ -1,12 +1,13 @@
 import CityPicker from "@/components/CityPicker";
 import { CATEGORIES } from "@/constants/categories";
-import { FAKE_EVENTS } from "@/constants/fakeEvents";
 import { useAuth } from "@/hooks/useAuth";
+import { useEvents } from "@/hooks/useEvents";
 import { useCityStore } from "@/store/cityStore";
 import { useRouter } from "expo-router";
 import { ChevronDown, Heart } from "lucide-react-native";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   ScrollView,
   Text,
@@ -22,8 +23,9 @@ export default function HomeScreen() {
   const [cityPickerVisible, setCityPickerVisible] = useState(false);
   const { selectedCity, favorites, toggleFavorite } = useCityStore();
   const router = useRouter();
+  const { events, loading } = useEvents(selectedCity);
 
-  const filteredEvents = FAKE_EVENTS.filter((event) => {
+  const filteredEvents = events.filter((event) => {
     const matchesCategory =
       selectedCategory === "sve" || event.category === selectedCategory;
     const matchesSearch = event.title
@@ -32,7 +34,7 @@ export default function HomeScreen() {
     return matchesCategory && matchesSearch;
   });
 
-  const featuredEvent = FAKE_EVENTS.find((e) => e.isFeatured);
+  const featuredEvent = events.find((e) => e.isFeatured);
 
   return (
     <View className="flex-1 bg-white">
@@ -79,73 +81,81 @@ export default function HomeScreen() {
         </ScrollView>
       </View>
 
-      <FlatList
-        data={filteredEvents}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
-        ListHeaderComponent={
-          <>
-            {featuredEvent && (
-              <View className="mb-4">
-                <Text className="text-base font-bold text-gray-900 mb-2">
-                  Istaknuto
-                </Text>
-                <View className="bg-gray-900 rounded-2xl p-4 h-40 justify-end">
-                  <View className="bg-orange-500 self-start px-2 py-1 rounded mb-1">
-                    <Text className="text-white text-xs font-bold">
-                      VEČERAS
+      {loading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#f97316" />
+        </View>
+      ) : (
+        <FlatList
+          data={filteredEvents}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
+          ListHeaderComponent={
+            <>
+              {featuredEvent && (
+                <View className="mb-4">
+                  <Text className="text-base font-bold text-gray-900 mb-2">
+                    Istaknuto
+                  </Text>
+                  <View className="bg-gray-900 rounded-2xl p-4 h-40 justify-end">
+                    <View className="bg-orange-500 self-start px-2 py-1 rounded mb-1">
+                      <Text className="text-white text-xs font-bold">
+                        VEČERAS
+                      </Text>
+                    </View>
+                    <Text className="text-white font-bold text-lg">
+                      {featuredEvent.title}
+                    </Text>
+                    <Text className="text-gray-400 text-sm">
+                      {featuredEvent.location.address}
                     </Text>
                   </View>
-                  <Text className="text-white font-bold text-lg">
-                    {featuredEvent.title}
+                </View>
+              )}
+              <Text className="text-base font-bold text-gray-900 mb-2">
+                Svi eventi
+              </Text>
+            </>
+          }
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => router.push(`/event/${item.id}` as any)}
+              className="flex-row bg-white border border-gray-100 rounded-2xl p-3 mb-3 items-center"
+            >
+              <View className="w-16 h-16 bg-orange-100 rounded-xl mr-3" />
+              <View className="flex-1">
+                <Text className="font-bold text-gray-900 text-sm">
+                  {item.title}
+                </Text>
+                <Text className="text-gray-500 text-xs mt-1">
+                  {item.location.address}
+                </Text>
+                <View className="flex-row justify-between items-center mt-2">
+                  <Text className="text-orange-500 font-bold text-sm">
+                    {item.price}
                   </Text>
-                  <Text className="text-gray-400 text-sm">
-                    {featuredEvent.location.address}
-                  </Text>
+                  <TouchableOpacity
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(item.id);
+                    }}
+                  >
+                    <Heart
+                      size={18}
+                      color={
+                        favorites.includes(item.id) ? "#f97316" : "#d1d5db"
+                      }
+                      fill={
+                        favorites.includes(item.id) ? "#f97316" : "transparent"
+                      }
+                    />
+                  </TouchableOpacity>
                 </View>
               </View>
-            )}
-            <Text className="text-base font-bold text-gray-900 mb-2">
-              Svi eventi
-            </Text>
-          </>
-        }
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => router.push(`/event/${item.id}` as any)}
-            className="flex-row bg-white border border-gray-100 rounded-2xl p-3 mb-3 items-center"
-          >
-            <View className="w-16 h-16 bg-orange-100 rounded-xl mr-3" />
-            <View className="flex-1">
-              <Text className="font-bold text-gray-900 text-sm">
-                {item.title}
-              </Text>
-              <Text className="text-gray-500 text-xs mt-1">
-                {item.location.address}
-              </Text>
-              <View className="flex-row justify-between items-center mt-2">
-                <Text className="text-orange-500 font-bold text-sm">
-                  {item.price}
-                </Text>
-                <TouchableOpacity
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(item.id);
-                  }}
-                >
-                  <Heart
-                    size={18}
-                    color={favorites.includes(item.id) ? "#f97316" : "#d1d5db"}
-                    fill={
-                      favorites.includes(item.id) ? "#f97316" : "transparent"
-                    }
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
+            </TouchableOpacity>
+          )}
+        />
+      )}
       <CityPicker
         visible={cityPickerVisible}
         onClose={() => setCityPickerVisible(false)}
