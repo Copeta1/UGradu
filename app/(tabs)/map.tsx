@@ -37,7 +37,6 @@ export default function MapScreen() {
         ))}
       </MapView>
 
-      {/* Grad selector na vrhu */}
       <View className="absolute top-12 left-4 right-4">
         <View className="bg-white rounded-2xl px-4 py-3 flex-row items-center gap-2">
           <MapPin size={16} color="#f97316" />

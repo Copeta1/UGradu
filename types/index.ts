@@ -25,4 +25,5 @@ export interface User {
   selectedCity: string;
   favorites: string[];
   pushToken?: string;
+  role: "user" | "organizer";
 }

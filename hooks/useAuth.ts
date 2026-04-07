@@ -53,6 +53,7 @@ export function useAuth() {
       firstName,
       lastName,
       email,
+      role: "user",
       createdAt: new Date(),
     });
   };

@@ -1,9 +1,11 @@
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, Mail, User } from "lucide-react-native";
+import { useRouter } from "expo-router";
+import { LogOut, Mail, Plus, User } from "lucide-react-native";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 
 export default function ProfileScreen() {
   const { userData, logout } = useAuth();
+  const router = useRouter();
 
   const handleLogout = () => {
     Alert.alert("Odjava", "Jesi li siguran da se želiš odjaviti?", [
@@ -42,6 +44,16 @@ export default function ProfileScreen() {
           </View>
         </View>
       </View>
+
+      {userData?.role === "organizer" && (
+        <TouchableOpacity
+          onPress={() => router.push("/event/create" as any)}
+          className="flex-row items-center justify-center gap-2 bg-orange-500 rounded-2xl py-4 mb-4"
+        >
+          <Plus size={18} color="white" />
+          <Text className="text-white font-bold">Kreiraj event</Text>
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity
         onPress={handleLogout}
