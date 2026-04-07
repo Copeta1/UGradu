@@ -1,6 +1,7 @@
 import { CATEGORIES } from "@/constants/categories";
 import { CITIES } from "@/constants/cities";
 import { useAuth } from "@/hooks/useAuth";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
 import { ChevronDown, X } from "lucide-react-native";
 import { useState } from "react";
@@ -22,9 +23,12 @@ export default function CreateEventScreen() {
   const [address, setAddress] = useState("");
   const [category, setCategory] = useState("koncerti");
   const [price, setPrice] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(new Date());
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [cityOpen, setCityOpen] = useState(false);
+  const [time, setTime] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   if (userData?.role !== "organizer") {
     return (
@@ -46,7 +50,7 @@ export default function CreateEventScreen() {
   }
 
   const handleCreate = () => {
-    if (!title || !description || !address || !price || !date) {
+    if (!title || !description || !address || !price) {
       Alert.alert("Greška", "Molimo ispunite sva polja.");
       return;
     }
@@ -176,16 +180,58 @@ export default function CreateEventScreen() {
         />
 
         {/* Datum */}
-        <Text className="text-sm font-medium text-gray-700 mb-1">
-          Datum i vrijeme
-        </Text>
-        <TextInput
-          className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 mb-4 text-gray-900"
-          placeholder="npr. 15.04.2026. u 20:00"
-          placeholderTextColor="#9ca3af"
-          value={date}
-          onChangeText={setDate}
-        />
+        <Text className="text-sm font-medium text-gray-700 mb-1">Datum</Text>
+        <TouchableOpacity
+          onPress={() => setShowDatePicker(true)}
+          className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 mb-4 flex-row justify-between items-center"
+        >
+          <Text className="text-gray-900">
+            {date.toLocaleDateString("hr-HR", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </Text>
+          <ChevronDown size={18} color="#9ca3af" />
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={date}
+            mode="date"
+            display="spinner"
+            minimumDate={new Date()}
+            onChange={(event, selectedDate) => {
+              setShowDatePicker(false);
+              if (selectedDate) setDate(selectedDate);
+            }}
+          />
+        )}
+
+        {/* Vrijeme */}
+        <Text className="text-sm font-medium text-gray-700 mb-1">Vrijeme</Text>
+        <TouchableOpacity
+          onPress={() => setShowTimePicker(true)}
+          className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 mb-4 flex-row justify-between items-center"
+        >
+          <Text className="text-gray-900">
+            {time.toLocaleTimeString("hr-HR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </Text>
+          <ChevronDown size={18} color="#9ca3af" />
+        </TouchableOpacity>
+        {showTimePicker && (
+          <DateTimePicker
+            value={time}
+            mode="time"
+            display="spinner"
+            onChange={(event, selectedTime) => {
+              setShowTimePicker(false);
+              if (selectedTime) setTime(selectedTime);
+            }}
+          />
+        )}
 
         {/* Cijena */}
         <Text className="text-sm font-medium text-gray-700 mb-1">Cijena</Text>
