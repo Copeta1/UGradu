@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
-import { registerForPushNotifications } from "@/services/notificationsService";
+import { useCityStore } from "@/store/cityStore";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -9,6 +9,7 @@ export default function RootLayout() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const segments = useSegments();
+  const { detectCity } = useCityStore();
 
   useEffect(() => {
     if (loading) return;
@@ -24,6 +25,12 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (user) {
+      detectCity();
+    }
+  }, [user]);
+
+  /*useEffect(() => {
+    if (user) {
       registerForPushNotifications()
         .then((token) => {
           if (token) {
@@ -34,7 +41,8 @@ export default function RootLayout() {
           console.log("Push notifikacije nisu dostupne u Expo Go.");
         });
     }
-  }, [user]);
+  }, [user]);}
+  */
 
   if (loading) {
     return (

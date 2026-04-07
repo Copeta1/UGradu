@@ -20,7 +20,7 @@ export default function EventDetailScreen() {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const { addFavorite, removeFavorite } = useAuth();
+  const { addFavorite, removeFavorite, userData } = useAuth();
   const { favorites } = useCityStore();
 
   const isFavorite = favorites.includes(id as string);
@@ -69,20 +69,30 @@ export default function EventDetailScreen() {
           >
             <ArrowLeft size={22} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() =>
-              isFavorite
-                ? removeFavorite(id as string)
-                : addFavorite(id as string)
-            }
-            className="bg-black/40 p-2 rounded-full"
-          >
-            <Heart
-              size={22}
-              color={isFavorite ? "#f97316" : "white"}
-              fill={isFavorite ? "#f97316" : "transparent"}
-            />
-          </TouchableOpacity>
+          <View className="flex-row gap-2">
+            {userData?.role === "organizer" && (
+              <TouchableOpacity
+                onPress={() => router.push(`/event/edit/${id}` as any)}
+                className="bg-black/40 px-3 py-2 rounded-full"
+              >
+                <Text className="text-white font-bold text-sm">Uredi</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              onPress={() =>
+                isFavorite
+                  ? removeFavorite(id as string)
+                  : addFavorite(id as string)
+              }
+              className="bg-black/40 p-2 rounded-full"
+            >
+              <Heart
+                size={22}
+                color={isFavorite ? "#f97316" : "white"}
+                fill={isFavorite ? "#f97316" : "transparent"}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
         <View className="p-4">
           <View className="bg-orange-500 self-start px-2 py-1 rounded mb-2">
