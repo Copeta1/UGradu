@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
+import { registerForPushNotifications } from "@/services/notificationsService";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -20,6 +21,20 @@ export default function RootLayout() {
       router.replace("/(tabs)");
     }
   }, [user, loading]);
+
+  useEffect(() => {
+    if (user) {
+      registerForPushNotifications()
+        .then((token) => {
+          if (token) {
+            console.log("Push token:", token);
+          }
+        })
+        .catch(() => {
+          console.log("Push notifikacije nisu dostupne u Expo Go.");
+        });
+    }
+  }, [user]);
 
   if (loading) {
     return (

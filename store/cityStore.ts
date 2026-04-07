@@ -1,20 +1,21 @@
 import { create } from "zustand";
 
-interface CityStore {
+interface AppStore {
   selectedCity: string;
   setSelectedCity: (city: string) => void;
   favorites: string[];
-  toggleFavorite: (id: string) => void;
+  setFavorites: (favorites: string[]) => void;
+  addFavorite: (id: string) => void;
+  removeFavorite: (id: string) => void;
 }
 
-export const useCityStore = create<CityStore>((set) => ({
+export const useCityStore = create<AppStore>((set) => ({
   selectedCity: "Zagreb",
   setSelectedCity: (city) => set({ selectedCity: city }),
   favorites: [],
-  toggleFavorite: (id) =>
-    set((state) => ({
-      favorites: state.favorites.includes(id)
-        ? state.favorites.filter((f) => f !== id)
-        : [...state.favorites, id],
-    })),
+  setFavorites: (favorites) => set({ favorites }),
+  addFavorite: (id) =>
+    set((state) => ({ favorites: [...state.favorites, id] })),
+  removeFavorite: (id) =>
+    set((state) => ({ favorites: state.favorites.filter((f) => f !== id) })),
 }));

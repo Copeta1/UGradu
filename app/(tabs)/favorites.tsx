@@ -1,13 +1,31 @@
-import { FAKE_EVENTS } from "@/constants/fakeEvents";
+import { useAuth } from "@/hooks/useAuth";
+import { useEvents } from "@/hooks/useEvents";
 import { useCityStore } from "@/store/cityStore";
 import { useRouter } from "expo-router";
 import { Heart, MapPin } from "lucide-react-native";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function FavoritesScreen() {
-  const { favorites, toggleFavorite } = useCityStore();
-  const favoriteEvents = FAKE_EVENTS.filter((e) => favorites.includes(e.id));
   const router = useRouter();
+  const { removeFavorite } = useAuth();
+  const { selectedCity, favorites } = useCityStore();
+  const { events, loading } = useEvents(selectedCity);
+
+  const favoriteEvents = events.filter((e) => favorites.includes(e.id));
+
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#f97316" />
+      </View>
+    );
+  }
 
   if (favoriteEvents.length === 0) {
     return (
@@ -17,7 +35,7 @@ export default function FavoritesScreen() {
           Nemaš spremljenih evenata
         </Text>
         <TouchableOpacity
-          onPress={() => router.push("/(tabs)")}
+          onPress={() => router.push("/(tabs)" as any)}
           className="mt-4 bg-orange-500 px-6 py-3 rounded-xl"
         >
           <Text className="text-white font-bold">Istraži evente</Text>
@@ -59,7 +77,7 @@ export default function FavoritesScreen() {
                 <Text className="text-orange-500 font-bold text-sm">
                   {item.price}
                 </Text>
-                <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
+                <TouchableOpacity onPress={() => removeFavorite(item.id)}>
                   <Heart size={18} color="#f97316" fill="#f97316" />
                 </TouchableOpacity>
               </View>

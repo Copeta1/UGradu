@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { db } from "@/services/firebase";
 import { useCityStore } from "@/store/cityStore";
 import { Event } from "@/types";
@@ -16,9 +17,11 @@ import {
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const { favorites, toggleFavorite } = useCityStore();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const { addFavorite, removeFavorite } = useAuth();
+  const { favorites } = useCityStore();
 
   const isFavorite = favorites.includes(id as string);
 
@@ -67,7 +70,11 @@ export default function EventDetailScreen() {
             <ArrowLeft size={22} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => toggleFavorite(id as string)}
+            onPress={() =>
+              isFavorite
+                ? removeFavorite(id as string)
+                : addFavorite(id as string)
+            }
             className="bg-black/40 p-2 rounded-full"
           >
             <Heart

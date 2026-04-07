@@ -17,11 +17,11 @@ import {
 } from "react-native";
 
 export default function HomeScreen() {
-  const { userData } = useAuth();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("sve");
   const [cityPickerVisible, setCityPickerVisible] = useState(false);
-  const { selectedCity, favorites, toggleFavorite } = useCityStore();
+  const { selectedCity, favorites } = useCityStore();
+  const { userData, addFavorite, removeFavorite } = useAuth();
   const router = useRouter();
   const { events, loading } = useEvents(selectedCity);
 
@@ -137,7 +137,9 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     onPress={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(item.id);
+                      favorites.includes(item.id)
+                        ? removeFavorite(item.id)
+                        : addFavorite(item.id);
                     }}
                   >
                     <Heart
